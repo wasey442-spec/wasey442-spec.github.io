@@ -1,0 +1,34 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="style.css"><title>Admin</title></head><body><div class="wrap" id="app"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.js"></script><script src="config.js"></script><script src="app.js"></script>
+<script>
+(async()=>{const{data:{session}}=await sb.auth.getSession();session?panel():login()})();
+function login(){$('#app').innerHTML='<h2>Admin Login</h2><input id="e" type="email" placeholder="Email"><input id="p" type="password" placeholder="Password"><button class="btn" onclick="dl()">Login</button>'}
+async function dl(){const{error}=await sb.auth.signInWithPassword({email:$('#e').value,password:$('#p').value});error?alert(error.message):panel()}
+function panel(){$('#app').innerHTML='<div class="tabs"><button onclick="add()">➕ Post</button><button onclick="list()">📦 Products</button><button onclick="ord()">🧾 Orders</button><button onclick="sb.auth.signOut().then(login)">Logout</button></div><div id="t"></div>';add()}
+function add(){$('#t').innerHTML='<div class="box"><h3>Naya Product Post Karein</h3><input id="f" type="file" accept="image/*" multiple><input id="ti" placeholder="Product ka naam"><input id="co" type="number" placeholder="Cost price (supplier ka rate)" oninput="if(!pr.dataset.u)pr.value=Math.round(this.value*1.5/10)*10"><input id="pr" type="number" placeholder="Selling price" oninput="this.dataset.u=1"><input id="ca" placeholder="Category (Shoes, Watches...)"><input id="sz" placeholder="Sizes (S,M,L,XL) - optional"><input id="cl" placeholder="Colours (Black,Red) - optional"><textarea id="de" placeholder="Description"></textarea><button class="btn" id="sv" onclick="addP()">Post Karein</button></div>'}
+function shrink(f){return new Promise(r=>{const i=new Image();i.onload=()=>{const s=Math.min(1,900/i.width),c=document.createElement('canvas');c.width=i.width*s;c.height=i.height*s;c.getContext('2d').drawImage(i,0,0,c.width,c.height);c.toBlob(r,'image/jpeg',.8)};i.src=URL.createObjectURL(f)})}
+async function addP(){const fs=[...$('#f').files];if(!fs.length||!$('#ti').value||!$('#pr').value)return alert('Photo, naam aur price zaroori hain');
+$('#sv').disabled=true;$('#sv').textContent='Upload ho raha hai...';const imgs=[];
+for(const[i,f]of fs.entries()){const n=Date.now()+'-'+i+'.jpg';const{error}=await sb.storage.from('pics').upload(n,await shrink(f),{contentType:'image/jpeg'});if(error){$('#sv').disabled=false;return alert(error.message)}imgs.push(sb.storage.from('pics').getPublicUrl(n).data.publicUrl)}
+const v=i=>$(i).value.trim();
+const{error}=await sb.from('products').insert({title:v('#ti'),price:+v('#pr'),cost:+v('#co')||0,category:v('#ca'),sizes:v('#sz'),colors:v('#cl'),descr:v('#de'),images:imgs});
+error?alert(error.message):(alert('Post ho gaya ✅'),add())}
+async function list(){const{data}=await sb.from('products').select('*').order('id',{ascending:false});
+$('#t').innerHTML=(data||[]).map(p=>'<div class="box row"><img src="'+esc(p.images[0])+'"><div style="flex:1">'+esc(p.title)+'<br>'+rs(p.price)+' (profit '+rs(p.price-p.cost)+')</div><button onclick="tg('+p.id+','+!p.active+')">'+(p.active?'Hide':'Show')+'</button><button onclick="rm('+p.id+')">🗑</button></div>').join('')}
+async function tg(id,a){await sb.from('products').update({active:a}).eq('id',id);list()}
+async function rm(id){if(confirm('Delete?')){await sb.from('products').delete().eq('id',id);list()}}
+let O=[];
+async function ord(){const{data}=await sb.from('orders').select('*').order('id',{ascending:false});O=data||[];
+$('#t').innerHTML=O.map((o,x)=>{const pf=o.total-o.items.reduce((a,i)=>a+i.cost*i.q,0);
+return '<div class="box"><b>#'+o.id+' '+esc(o.name)+'</b> '+esc(o.phone)+'<br>'+esc(o.address)+', '+esc(o.city)+'<br>'+o.items.map(i=>esc(i.title)+' ('+esc(i.size)+' '+esc(i.color)+') ×'+i.q).join('<br>')+'<br><b>COD '+rs(o.total)+'</b> | Profit ~'+rs(pf)+'<select onchange="st('+o.id+',this.value,'+x+')">'+['New','Confirmed','Shipped','Delivered','Cancelled'].map(s=>'<option'+(s==o.status?' selected':'')+'>'+s+'</option>').join('')+'</select><button class="btn g" onclick="wa('+x+')">📲 Supplier ko bhejein</button><button class="btn" onclick="cm('+x+')">💬 Customer ko message</button></div>'}).join('')||'<p>Abhi koi order nahi</p>'}
+async function st(id,s,x){await sb.from('orders').update({status:s}).eq('id',id);O[x].status=s;alert('Status: '+s+'. Ab "Customer ko message" dabayein')}
+function cm(x){const o=O[x],it=o.items.map(i=>i.title+' ('+i.size+' '+i.color+') x'+i.q).join(', '),n=o.name,id=o.id,T=o.total;
+const M={New:'Assalam o Alaikum '+n+'! Aap ka order #'+id+' mil gaya hai: '+it+'. Total COD Rs '+T+'. Hum jald confirm karenge. Shukriya - '+CFG.STORE,
+Confirmed:'Assalam o Alaikum '+n+'! Aap ka order #'+id+' confirm ho gaya hai: '+it+'. Total COD Rs '+T+'. Jald dispatch hoga. Shukriya - '+CFG.STORE,
+Shipped:'Assalam o Alaikum '+n+'! Aap ka order #'+id+' dispatch ho gaya hai. 2-4 din mein pohanch jayega. Delivery par Rs '+T+' tayyar rakhein. - '+CFG.STORE,
+Delivered:'Shukriya '+n+'! Aap ka order #'+id+' deliver ho gaya hai. Product pasand aaye to dosto ko zaroor batayein. - '+CFG.STORE,
+Cancelled:'Assalam o Alaikum '+n+', aap ka order #'+id+' cancel kar diya gaya hai. Dobara order ke liye hum hazir hain. - '+CFG.STORE};
+let ph=o.phone.replace(/\D/g,'');if(ph[0]=='0')ph='92'+ph.slice(1);
+open('https://wa.me/'+ph+'?text='+encodeURIComponent(M[o.status]||M.New))}
+function wa(x){const o=O[x];const t='Order #'+o.id+'\nNaam: '+o.name+'\nPhone: '+o.phone+'\nAddress: '+o.address+', '+o.city+'\n'+o.items.map(i=>i.title+' | '+i.size+' | '+i.color+' | Qty '+i.q).join('\n')+'\nCOD Amount: '+o.total;
+open('https://wa.me/'+CFG.SUPPLIER+'?text='+encodeURIComponent(t))}
+</script></body></html>
