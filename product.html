@@ -1,0 +1,11 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="style.css"><title>Product</title></head><body><div class="wrap" id="p">Loading...</div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.js"></script><script src="config.js"></script><script src="app.js"></script>
+<script>
+head();let P,sz='',cl='';
+(async()=>{const id=new URLSearchParams(location.search).get('id');
+const{data}=await sb.from('products').select('*').eq('id',id).single();P=data;if(!P)return $('#p').textContent='Product nahi mila';
+document.title=P.title;const opt=(s,k)=>s?'<p><b>'+k+'</b></p><div class="opt" data-k="'+k+'">'+s.split(',').map(x=>'<button>'+esc(x.trim())+'</button>').join(' ')+'</div>':'';
+$('#p').innerHTML='<img class="big" id="m" src="'+esc(P.images[0])+'"><div class="th">'+P.images.map(i=>'<img src="'+esc(i)+'" onclick="m.src=this.src">').join('')+'</div><div class="box"><h2>'+esc(P.title)+'</h2><div class="price">'+rs(P.price)+'</div>'+opt(P.sizes,'Size')+opt(P.colors,'Colour')+'<p><b>Quantity</b></p><input id="qt" type="number" value="1" min="1"><p>'+esc(P.descr).replace(/\n/g,'<br>')+'</p><button class="btn" onclick="add(0)">Add to Cart</button><button class="btn g" onclick="add(1)">Abhi Order Karein</button></div>';
+document.querySelectorAll('.opt').forEach(d=>d.onclick=e=>{if(e.target.tagName!='BUTTON')return;d.querySelectorAll('button').forEach(b=>b.classList.remove('on'));e.target.classList.add('on');if(d.dataset.k=='Size')sz=e.target.textContent;else cl=e.target.textContent})})();
+function add(go){if(P.sizes&&!sz)return alert('Size select karein');if(P.colors&&!cl)return alert('Colour select karein');
+const c=cart();c.push({id:P.id,title:P.title,img:P.images[0],price:P.price,cost:P.cost,size:sz,color:cl,q:+$('#qt').value||1});save(c);go?location='cart.html':alert('Cart mein add ho gaya ✅')}
+</script></body></html>

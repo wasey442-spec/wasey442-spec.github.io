@@ -1,0 +1,16 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="style.css"><title>Cart</title></head><body><div class="wrap"><div id="l"></div><div class="box" id="f"><h3>Delivery Details (Cash on Delivery)</h3><input id="n" placeholder="Poora naam"><input id="ph" type="tel" placeholder="Phone number"><input id="ci" placeholder="Shehar"><textarea id="ad" placeholder="Poora address"></textarea><button class="btn" id="ob" onclick="order()">Order Confirm Karein</button></div></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.js"></script><script src="config.js"></script><script src="app.js"></script>
+<script>
+head();
+function draw(){const c=cart();if(!c.length){$('#f').style.display='none';return $('#l').innerHTML='<div class="box">Cart khali hai. <a href="index.html">Shopping karein</a></div>'}
+const sub=c.reduce((a,i)=>a+i.price*i.q,0),sh=sub>=CFG.FREE?0:CFG.SHIP;
+$('#l').innerHTML='<div class="box">'+c.map((i,x)=>'<div class="row"><img src="'+esc(i.img)+'"><div style="flex:1">'+esc(i.title)+'<br><small>'+esc(i.size)+' '+esc(i.color)+'</small><br>'+rs(i.price)+' × '+i.q+'</div><button onclick="del('+x+')">✕</button></div>').join('')+'<hr>Subtotal: '+rs(sub)+'<br>Delivery: '+(sh?rs(sh):'FREE')+'<h3>Total: '+rs(sub+sh)+'</h3>'+(sh?'<small>'+rs(CFG.FREE)+' se upar delivery free!</small>':'')+'</div>'}
+function del(x){const c=cart();c.splice(x,1);save(c);draw()}
+async function order(){const c=cart(),v=id=>$(id).value.trim();
+if(!v('#n')||v('#ph').length<10||!v('#ci')||!v('#ad'))return alert('Sari details sahi bharein');
+const sub=c.reduce((a,i)=>a+i.price*i.q,0),total=sub+(sub>=CFG.FREE?0:CFG.SHIP);
+$('#ob').disabled=true;
+const{error}=await sb.from('orders').insert({name:v('#n'),phone:v('#ph'),city:v('#ci'),address:v('#ad'),items:c,total});
+if(error){$('#ob').disabled=false;return alert('Error: '+error.message)}
+save([]);$('#l').innerHTML='';$('#f').innerHTML='<h2>✅ Order ho gaya!</h2><p>Hum jald aap se rabta karenge. Total: '+rs(total)+' (COD)</p><a href="index.html">Wapas shop</a>'}
+draw();
+</script></body></html>

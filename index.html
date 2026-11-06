@@ -1,0 +1,11 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="style.css"><title>Store</title></head><body><div class="wrap"><input id="q" placeholder="🔍 Search karein..."><div class="chips" id="chips"></div><div class="grid" id="g"></div></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.js"></script><script src="config.js"></script><script src="app.js"></script>
+<script>
+head();let all=[],cat='';
+(async()=>{const{data}=await sb.from('products').select('*').eq('active',true).order('id',{ascending:false});all=data||[];
+const cs=['All',...new Set(all.map(p=>p.category).filter(Boolean))];
+$('#chips').innerHTML=cs.map(c=>'<button data-c="'+esc(c)+'">'+esc(c)+'</button>').join('');show()})();
+$('#chips').onclick=e=>{if(e.target.dataset.c!=null){cat=e.target.dataset.c=='All'?'':e.target.dataset.c;show()}};
+$('#q').oninput=show;
+function show(){const q=$('#q').value.toLowerCase();
+$('#g').innerHTML=all.filter(p=>(!cat||p.category==cat)&&p.title.toLowerCase().includes(q)).map(p=>'<a class="card" href="product.html?id='+p.id+'"><img src="'+esc(p.images[0])+'" loading="lazy"><div>'+esc(p.title)+'<b>'+rs(p.price)+'</b></div></a>').join('')||'<p>Koi product nahi mila</p>'}
+</script></body></html>

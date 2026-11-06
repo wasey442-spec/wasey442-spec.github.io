@@ -1,0 +1,16 @@
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:#f4f4f4;color:#222}
+header{position:sticky;top:0;background:#f85606;color:#fff;display:flex;justify-content:space-between;padding:12px 14px;z-index:5}
+header a{color:#fff;text-decoration:none;font-weight:700}.cartl b{background:#fff;color:#f85606;border-radius:10px;padding:0 6px;margin-left:4px}
+.wrap{max-width:720px;margin:auto;padding:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:#fff;border-radius:8px;overflow:hidden;text-decoration:none;color:inherit}
+.card img{width:100%;aspect-ratio:1;object-fit:cover}.card div{padding:8px;font-size:14px}.card b{color:#f85606;display:block}
+input,textarea,select{width:100%;padding:11px;margin:5px 0;border:1px solid #ccc;border-radius:6px;font-size:16px}
+.btn{background:#f85606;color:#fff;border:0;padding:13px;border-radius:6px;font-size:16px;width:100%;margin:5px 0}
+.btn.g{background:#25d366}.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0}
+.chips button,.opt button,.tabs button{border:1px solid #ccc;background:#fff;border-radius:16px;padding:7px 13px;white-space:nowrap}
+.on{background:#f85606!important;color:#fff;border-color:#f85606!important}
+.box{background:#fff;border-radius:8px;padding:12px;margin:10px 0}.big{width:100%;border-radius:8px}
+.th{display:flex;gap:6px;overflow-x:auto}.th img{height:70px;border-radius:6px}
+.row{display:flex;gap:10px;align-items:center;margin:8px 0}.row img{width:60px;height:60px;object-fit:cover;border-radius:6px}
+.tabs{display:flex;gap:6px;overflow-x:auto}.price{color:#f85606;font-size:22px;font-weight:700}
