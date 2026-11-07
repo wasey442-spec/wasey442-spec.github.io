@@ -12,14 +12,19 @@ for(const[i,f]of fs.entries()){const n=Date.now()+'-'+i+'.jpg';const{error}=awai
 const v=i=>$(i).value.trim();
 const{error}=await sb.from('products').insert({title:v('#ti'),price:+v('#pr'),cost:+v('#co')||0,category:v('#ca'),sizes:v('#sz'),colors:v('#cl'),descr:v('#de'),images:imgs});
 error?alert(error.message):(alert('Post ho gaya ✅'),add())}
-async function list(){const{data}=await sb.from('products').select('*').order('id',{ascending:false});
-$('#t').innerHTML=(data||[]).map(p=>'<div class="box row"><img src="'+esc(p.images[0])+'"><div style="flex:1">'+esc(p.title)+'<br>'+rs(p.price)+' (profit '+rs(p.price-p.cost)+')</div><button onclick="tg('+p.id+','+!p.active+')">'+(p.active?'Hide':'Show')+'</button><button onclick="rm('+p.id+')">🗑</button></div>').join('')}
+let PL=[];
+async function list(){const{data}=await sb.from('products').select('*').order('id',{ascending:false});PL=data||[];
+$('#t').innerHTML=PL.map((p,x)=>'<div class="box row"><img src="'+esc(p.images[0])+'"><div style="flex:1">'+esc(p.title)+'<br>'+rs(p.price)+' (profit '+rs(p.price-p.cost)+')</div><button onclick="ed('+x+')">✏️</button><button onclick="tg('+p.id+','+!p.active+')">'+(p.active?'Hide':'Show')+'</button><button onclick="rm('+p.id+')">🗑</button></div>').join('')||'<p>Abhi koi product nahi</p>'}
+function ed(x){const p=PL[x],f=(i,l,v,t)=>'<label><small>'+l+'</small></label><input id="'+i+'" '+(t||'')+' value="'+esc(v)+'">';
+$('#t').innerHTML='<div class="box"><h3>✏️ Product Edit</h3>'+f('ti','Naam',p.title)+f('co','Cost price',p.cost,'type="number"')+f('pr','Selling price',p.price,'type="number"')+f('ca','Category',p.category)+f('sz','Sizes',p.sizes)+f('cl','Colours',p.colors)+'<label><small>Description</small></label><textarea id="de">'+esc(p.descr)+'</textarea><button class="btn" onclick="upd('+p.id+')">💾 Save</button><button class="btn" style="background:#777" onclick="list()">Cancel</button></div>'}
+async function upd(id){const v=i=>$(i).value.trim();const{error}=await sb.from('products').update({title:v('#ti'),price:+v('#pr'),cost:+v('#co')||0,category:v('#ca'),sizes:v('#sz'),colors:v('#cl'),descr:v('#de')}).eq('id',id);error?alert(error.message):(alert('Save ho gaya ✅'),list())}
 async function tg(id,a){await sb.from('products').update({active:a}).eq('id',id);list()}
 async function rm(id){if(confirm('Delete?')){await sb.from('products').delete().eq('id',id);list()}}
 let O=[];
 async function ord(){const{data}=await sb.from('orders').select('*').order('id',{ascending:false});O=data||[];
-$('#t').innerHTML=O.map((o,x)=>{const pf=o.total-o.items.reduce((a,i)=>a+i.cost*i.q,0);
-return '<div class="box"><b>#'+o.id+' '+esc(o.name)+'</b> '+esc(o.phone)+'<br>'+esc(o.address)+', '+esc(o.city)+'<br>'+o.items.map(i=>esc(i.title)+' ('+esc(i.size)+' '+esc(i.color)+') ×'+i.q).join('<br>')+'<br><b>COD '+rs(o.total)+'</b> | Profit ~'+rs(pf)+'<select onchange="st('+o.id+',this.value,'+x+')">'+['New','Confirmed','Shipped','Delivered','Cancelled'].map(s=>'<option'+(s==o.status?' selected':'')+'>'+s+'</option>').join('')+'</select><button class="btn g" onclick="wa('+x+')">📲 Supplier ko bhejein</button><button class="btn" onclick="cm('+x+')">💬 Customer ko message</button></div>'}).join('')||'<p>Abhi koi order nahi</p>'}
+const pf0=o=>o.total-o.items.reduce((a,i)=>a+i.cost*i.q,0),sm=f=>O.filter(f).reduce((a,o)=>a+pf0(o),0);
+$('#t').innerHTML='<div class="box">🆕 Naye: <b>'+O.filter(o=>o.status=='New').length+'</b> | 🚚 Shipped: <b>'+O.filter(o=>o.status=='Shipped').length+'</b><br>✅ Delivered profit: <b>'+rs(sm(o=>o.status=='Delivered'))+'</b><br>⏳ Pending profit: <b>'+rs(sm(o=>['New','Confirmed','Shipped'].includes(o.status)))+'</b></div>'+O.map((o,x)=>{const pf=o.total-o.items.reduce((a,i)=>a+i.cost*i.q,0);
+return '<div class="box"><b>#'+o.id+' '+esc(o.name)+'</b> '+esc(o.phone)+'<br>'+esc(o.address)+', '+esc(o.city)+'<br>'+o.items.map(i=>esc(i.title)+' ('+esc(i.size)+' '+esc(i.color)+') ×'+i.q).join('<br>')+'<br><b>COD '+rs(o.total)+'</b> | Profit ~'+rs(pf)+'<select onchange="st('+o.id+',this.value,'+x+')">'+['New','Confirmed','Shipped','Delivered','Cancelled'].map(s=>'<option'+(s==o.status?' selected':'')+'>'+s+'</option>').join('')+'</select><button class="btn g" onclick="wa('+x+')">📲 Supplier ko bhejein</button><button class="btn" style="background:#475569" onclick="cp('+x+')">📋 Copy details</button><button class="btn" onclick="cm('+x+')">💬 Customer ko message</button></div>'}).join('')||'<p>Abhi koi order nahi</p>'}
 async function st(id,s,x){await sb.from('orders').update({status:s}).eq('id',id);O[x].status=s;alert('Status: '+s+'. Ab "Customer ko message" dabayein')}
 function cm(x){const o=O[x],it=o.items.map(i=>i.title+' ('+i.size+' '+i.color+') x'+i.q).join(', '),n=o.name,id=o.id,T=o.total;
 const M={New:'Assalam o Alaikum '+n+'! Aap ka order #'+id+' mil gaya hai: '+it+'. Total COD Rs '+T+'. Hum jald confirm karenge. Shukriya - '+CFG.STORE,
@@ -29,6 +34,7 @@ Delivered:'Shukriya '+n+'! Aap ka order #'+id+' deliver ho gaya hai. Product pas
 Cancelled:'Assalam o Alaikum '+n+', aap ka order #'+id+' cancel kar diya gaya hai. Dobara order ke liye hum hazir hain. - '+CFG.STORE};
 let ph=o.phone.replace(/\D/g,'');if(ph[0]=='0')ph='92'+ph.slice(1);
 open('https://wa.me/'+ph+'?text='+encodeURIComponent(M[o.status]||M.New))}
+function cp(x){const o=O[x];navigator.clipboard.writeText(o.name+'\n'+o.phone+'\n'+o.address+', '+o.city+'\n'+o.items.map(i=>i.title+' | '+i.size+' | '+i.color+' x'+i.q).join('\n')+'\nCOD: '+o.total).then(()=>alert('Copy ho gaya ✅'))}
 function wa(x){const o=O[x];const t='Order #'+o.id+'\nNaam: '+o.name+'\nPhone: '+o.phone+'\nAddress: '+o.address+', '+o.city+'\n'+o.items.map(i=>i.title+' | '+i.size+' | '+i.color+' | Qty '+i.q).join('\n')+'\nCOD Amount: '+o.total;
 open('https://wa.me/'+CFG.SUPPLIER+'?text='+encodeURIComponent(t))}
 </script></body></html>

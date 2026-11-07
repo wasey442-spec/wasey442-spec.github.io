@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="style.css"><title>Cart</title></head><body><div class="wrap"><div id="l"></div><div class="box" id="f"><h3>Delivery Details (Cash on Delivery)</h3><input id="n" placeholder="Poora naam"><input id="ph" type="tel" placeholder="Phone number"><input id="ci" placeholder="Shehar"><textarea id="ad" placeholder="Poora address"></textarea><button class="btn" id="ob" onclick="order()">Order Confirm Karein</button></div></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.js"></script><script src="config.js"></script><script src="app.js"></script>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f85606"><link rel="stylesheet" href="style.css"><title>Cart</title></head><body><div class="wrap"><div id="l"></div><div class="box" id="f"><h3>Delivery Details (Cash on Delivery)</h3><input id="n" placeholder="Poora naam"><input id="ph" type="tel" placeholder="Phone number"><input id="ci" placeholder="Shehar"><textarea id="ad" placeholder="Poora address"></textarea><button class="btn" id="ob" onclick="order()">Order Confirm Karein</button></div></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.js"></script><script src="config.js"></script><script src="app.js"></script>
 <script>
 head();
 function draw(){const c=cart();if(!c.length){$('#f').style.display='none';return $('#l').innerHTML='<div class="box">Cart khali hai. <a href="index.html">Shopping karein</a></div>'}
@@ -11,6 +11,8 @@ const sub=c.reduce((a,i)=>a+i.price*i.q,0),total=sub+(sub>=CFG.FREE?0:CFG.SHIP);
 $('#ob').disabled=true;
 const{error}=await sb.from('orders').insert({name:v('#n'),phone:v('#ph'),city:v('#ci'),address:v('#ad'),items:c,total});
 if(error){$('#ob').disabled=false;return alert('Error: '+error.message)}
-save([]);$('#l').innerHTML='';$('#f').innerHTML='<h2>✅ Order ho gaya!</h2><p>Hum jald aap se rabta karenge. Total: '+rs(total)+' (COD)</p><a href="index.html">Wapas shop</a>'}
+const nm=v('#n'),msg='Assalam o Alaikum! Maine '+CFG.STORE+' se order kiya hai:\n'+c.map(i=>i.title+(i.size?' | '+i.size:'')+(i.color?' | '+i.color:'')+' x'+i.q).join('\n')+'\nTotal COD: '+rs(total)+'\nNaam: '+nm+'\nPhone: '+v('#ph')+'\nAddress: '+v('#ad')+', '+v('#ci');
+if(CFG.NTFY)fetch('https://ntfy.sh/'+CFG.NTFY,{method:'POST',body:'🛒 Naya order! '+rs(total)+' ('+c.length+' item)'}).catch(()=>{});
+save([]);$('#l').innerHTML='';$('#f').innerHTML='<h2>✅ Order mil gaya!</h2><p>Shukriya '+esc(nm)+'! Hum jald aap ko call ya WhatsApp par confirm karenge. Total: <b>'+rs(total)+'</b> (Cash on Delivery)</p>'+(CFG.WA?'<a class="btn g" style="display:block;text-align:center;text-decoration:none" href="https://wa.me/'+esc(CFG.WA)+'?text='+encodeURIComponent(msg)+'">📲 WhatsApp par order confirm karein</a>':'')+'<p><a href="index.html">← Mazeed shopping</a></p>'}
 draw();
 </script></body></html>
