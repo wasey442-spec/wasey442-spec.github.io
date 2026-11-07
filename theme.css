@@ -34,3 +34,13 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--b2);border-color
 .wafab{position:fixed;right:14px;bottom:16px;width:54px;height:54px;border-radius:50%;background:#25d366;color:#fff;font-size:28px;display:flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.3);z-index:9}
 .card .im,.card .t{padding:0}
 .card .t{height:38px}
+.car{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;border-radius:var(--r);scrollbar-width:none;background:#fff}
+.car::-webkit-scrollbar{display:none}
+.car img{flex:0 0 100%;width:100%;aspect-ratio:1;object-fit:cover;scroll-snap-align:center}
+.dots{text-align:center;font-size:12px;color:var(--mut);margin:6px 0}
+.th{padding:2px 0 8px}.th img{height:62px;width:62px;object-fit:cover}
+.pt{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.pt span{background:#f1f5f9;border-radius:12px;padding:5px 10px;font-size:12px}
+.bar{position:fixed;left:0;right:0;bottom:0;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;box-shadow:0 -4px 16px rgba(0,0,0,.12);z-index:8}
+.bar b{display:block;font-size:20px;color:var(--b)}.bar small{color:var(--mut)}.bar .btn{width:auto;flex:1;max-width:220px;margin:0}
+#rt{margin:18px 2px 10px}
+body:has(.bar) .wafab{bottom:84px}
