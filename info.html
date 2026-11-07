@@ -1,0 +1,12 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f85606"><link rel="stylesheet" href="style.css"><title>Info</title></head><body><div class="wrap"><div class="box" id="c"></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.js"></script><script src="config.js"></script><script src="app.js"></script>
+<script>
+head();const N=esc(CFG.STORE);
+// Yahan likha text apni asli policy ke mutabiq badal lein
+const T={
+about:['Hamare baare mein','<p><b>'+N+'</b> ek Pakistani online dukaan hai. Hum chuni hui cheezein (jewellery, accessories, winter wear aur mazeed) Cash on Delivery par ghar tak pohanchate hain.</p><p>Aap ka order milne par hum call ya WhatsApp se confirm karte hain, phir dispatch hota hai.</p>'],
+delivery:['Delivery','<p>Delivery Pakistan bhar mein courier ke zariye hoti hai.</p><p>Aam taur par <b>'+esc(CFG.DELIVERY||'3-5 din')+'</b> lagte hain. Door ke shehron mein ek do din zyada ho sakte hain.</p><p>Order confirm hone ke baad hi dispatch hota hai, isliye humari call ya WhatsApp message ka jawab zaroor dein.</p><p>Parcel milne par rider ko cash dein (Cash on Delivery).</p>'],
+return:['Return Policy','<p>Parcel lete waqt rider ke samne check karein.</p><p>Agar product kharab, toota hua ya ghalat mila ho to <b>7 din ke andar</b> humein WhatsApp par photo ya video ke saath batayein. Hum jald hal karenge.</p><p>Istemal kiya hua product, ya apni marzi se size/colour ghalat chunne par return nahi hota, is liye order se pehle size aur colour ek dafa confirm kar lein.</p>'],
+contact:['Rabta karein','<p>Koi sawal ho to hum se rabta karein.</p>'+(CFG.WA?'<a class="btn g" href="https://wa.me/'+esc(CFG.WA)+'" target="_blank">💬 WhatsApp par message karein</a>':'<p>WhatsApp number jald shamil kiya jayega.</p>')]};
+const k=new URLSearchParams(location.search).get('p'),t=T[k]||T.about;document.title=t[0];$('#c').innerHTML='<h2>'+t[0]+'</h2>'+t[1];
+</script></body></html>

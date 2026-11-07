@@ -1,0 +1,9 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f85606"><link rel="stylesheet" href="style.css"><title>Order Track</title></head><body><div class="wrap"><div class="box"><h2>📍 Order Track Karein</h2><p>Jo phone number order mein diya tha wo likhein.</p><input id="ph" type="tel" placeholder="03001234567"><button class="btn" onclick="go()">Dhoondein</button></div><div id="r"></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.js"></script><script src="config.js"></script><script src="app.js"></script>
+<script>
+head();const ST=['New','Confirmed','Shipped','Delivered'],LB={New:'Order mila',Confirmed:'Confirm',Shipped:'Dispatch',Delivered:'Deliver'};
+async function go(){const p=$('#ph').value.replace(/[\s-]/g,'').replace(/^\+?92/,'0');if(!/^03\d{9}$/.test(p))return alert('Sahi phone number likhein, jaise 03001234567');
+$('#r').innerHTML='<p>Dhoond rahe hain...</p>';const{data,error}=await sb.rpc('track_orders',{p});
+if(error)return $('#r').innerHTML='<div class="box">Tracking abhi chalu nahi. Humein WhatsApp par poochein.</div>';
+$('#r').innerHTML=(data||[]).map(o=>{const i=ST.indexOf(o.status);return '<div class="box"><b>Order #'+o.id+'</b> · '+rs(o.total)+'<br><small>'+esc(o.titles)+'</small><div class="tl">'+(o.status=='Cancelled'?'<span class="x">❌ Cancel ho gaya</span>':ST.map((s,x)=>'<span class="'+(x<=i?'d':'')+'">'+(x<=i?'✅':'⚪')+' '+LB[s]+'</span>').join(''))+'</div></div>'}).join('')||'<div class="box">Is number par koi order nahi mila.</div>'}
+</script></body></html>

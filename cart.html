@@ -6,13 +6,19 @@ const sub=c.reduce((a,i)=>a+i.price*i.q,0),sh=sub>=CFG.FREE?0:CFG.SHIP;
 $('#l').innerHTML='<div class="box">'+c.map((i,x)=>'<div class="row"><img src="'+esc(i.img)+'"><div style="flex:1">'+esc(i.title)+'<br><small>'+esc(i.size)+' '+esc(i.color)+'</small><br>'+rs(i.price)+' × '+i.q+'</div><button onclick="del('+x+')">✕</button></div>').join('')+'<hr>Subtotal: '+rs(sub)+'<br>Delivery: '+(sh?rs(sh):'FREE')+'<h3>Total: '+rs(sub+sh)+'</h3>'+(sh?'<small>'+rs(CFG.FREE)+' se upar delivery free!</small>':'')+'</div>'}
 function del(x){const c=cart();c.splice(x,1);save(c);draw()}
 async function order(){const c=cart(),v=id=>$(id).value.trim();
-if(!v('#n')||v('#ph').length<10||!v('#ci')||!v('#ad'))return alert('Sari details sahi bharein');
+const ph=v('#ph').replace(/[\s-]/g,'').replace(/^\+?92/,'0');
+if(v('#n').length<3)return alert('Poora naam likhein');
+if(!/^03\d{9}$/.test(ph))return alert('Phone number sahi likhein, jaise 03001234567');
+if(!v('#ci')||v('#ad').length<10)return alert('Shehar aur poora address likhein');
+const t=JSON.parse(localStorage.ot||'[]').filter(x=>Date.now()-x<36e5);
+if(t.length>=3)return alert('Is device se bar bar order ho chuke hain. 1 ghante baad try karein ya humein WhatsApp karein.');
 const sub=c.reduce((a,i)=>a+i.price*i.q,0),total=sub+(sub>=CFG.FREE?0:CFG.SHIP);
 $('#ob').disabled=true;
-const{error}=await sb.from('orders').insert({name:v('#n'),phone:v('#ph'),city:v('#ci'),address:v('#ad'),items:c,total});
+const{error}=await sb.from('orders').insert({name:v('#n'),phone:ph,city:v('#ci'),address:v('#ad'),items:c,total});
 if(error){$('#ob').disabled=false;return alert('Error: '+error.message)}
-const nm=v('#n'),msg='Assalam o Alaikum! Maine '+CFG.STORE+' se order kiya hai:\n'+c.map(i=>i.title+(i.size?' | '+i.size:'')+(i.color?' | '+i.color:'')+' x'+i.q).join('\n')+'\nTotal COD: '+rs(total)+'\nNaam: '+nm+'\nPhone: '+v('#ph')+'\nAddress: '+v('#ad')+', '+v('#ci');
+t.push(Date.now());localStorage.ot=JSON.stringify(t);ev('Purchase',{value:total,currency:'PKR'});
+const nm=v('#n'),msg='Assalam o Alaikum! Maine '+CFG.STORE+' se order kiya hai:\n'+c.map(i=>i.title+(i.size?' | '+i.size:'')+(i.color?' | '+i.color:'')+' x'+i.q).join('\n')+'\nTotal COD: '+rs(total)+'\nNaam: '+nm+'\nPhone: '+ph+'\nAddress: '+v('#ad')+', '+v('#ci');
 if(CFG.NTFY)fetch('https://ntfy.sh/'+CFG.NTFY,{method:'POST',body:'🛒 Naya order! '+rs(total)+' ('+c.length+' item)'}).catch(()=>{});
-save([]);$('#l').innerHTML='';$('#f').innerHTML='<h2>✅ Order mil gaya!</h2><p>Shukriya '+esc(nm)+'! Hum jald aap ko call ya WhatsApp par confirm karenge. Total: <b>'+rs(total)+'</b> (Cash on Delivery)</p>'+(CFG.WA?'<a class="btn g" style="display:block;text-align:center;text-decoration:none" href="https://wa.me/'+esc(CFG.WA)+'?text='+encodeURIComponent(msg)+'">📲 WhatsApp par order confirm karein</a>':'')+'<p><a href="index.html">← Mazeed shopping</a></p>'}
+save([]);$('#l').innerHTML='';$('#f').innerHTML='<h2>✅ Order mil gaya!</h2><p>Shukriya '+esc(nm)+'! Hum jald aap ko call ya WhatsApp par confirm karenge. Total: <b>'+rs(total)+'</b> (Cash on Delivery)</p>'+(CFG.WA?'<a class="btn g" href="https://wa.me/'+esc(CFG.WA)+'?text='+encodeURIComponent(msg)+'">📲 WhatsApp par order confirm karein</a>':'')+'<p><a href="track.html">📍 Order track karein</a> · <a href="index.html">← Mazeed shopping</a></p>'}
 draw();
 </script></body></html>
