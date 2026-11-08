@@ -58,3 +58,8 @@ a.btn{display:block;text-align:center;text-decoration:none;box-sizing:border-box
 .tabs{gap:8px;padding:2px 0 10px}.tabs::-webkit-scrollbar{display:none}
 .tabs button{padding:9px 16px;font-size:14px;transition:.15s}
 .tabs button.on{background:linear-gradient(135deg,var(--b),var(--b2))!important;color:#fff!important;border-color:transparent!important;font-weight:700;box-shadow:0 4px 12px rgba(248,86,6,.4);transform:scale(1.05)}
+.bdg{position:absolute;left:8px;top:8px;background:#dc2626;color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px}.bdg.s{position:static;display:inline-block;margin-bottom:6px}
+.stars{margin:2px 0 6px}.rev{border-top:1px solid #eee;padding:8px 0;font-size:14px}details summary{cursor:pointer;font-weight:700;margin:10px 0;color:var(--b)}
+.chart{display:flex;gap:6px;align-items:flex-end;height:150px;margin-top:12px}.chart div{flex:1;text-align:center;display:flex;flex-direction:column;justify-content:flex-end}.chart i{display:block;background:linear-gradient(var(--b2),var(--b));border-radius:6px 6px 0 0;min-height:2px}.chart small{font-size:11px;color:var(--mut)}
+.flag{font-size:12px;border-radius:8px;padding:4px 8px;margin:4px 0;display:inline-block}.flag.g{background:#dcfce7;color:#166534}.flag.r{background:#fee2e2;color:#991b1b}
+.mk{display:block;margin:8px 0;font-size:14px}.mk input{width:auto;margin-right:6px}

@@ -8,9 +8,10 @@
 <div class="grid" id="g"></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.js"></script><script src="config.js"></script><script src="app.js"></script>
 <script>
-window.onS=S=>{if(S.hero_t)$('.hero h2').textContent=S.hero_t;if(S.hero_p)$('.hero p').textContent=S.hero_p};
+window.onS=S=>{if(+S.bundle_n&&+S.bundle_off)$('#tr').insertAdjacentHTML('beforeend','<span>🎁 '+S.bundle_n+' lo, Rs '+S.bundle_off+' bachao</span>');if(S.hero_t)$('.hero h2').textContent=S.hero_t;if(S.hero_p)$('.hero p').textContent=S.hero_p};
 head();let all=[],cat='';
 const EM={jewellery:'💍',shoes:'👟',accessories:'👜','winter wear':'🧥',watches:'⌚',kitchen:'🍳',beauty:'💄',electronics:'🎧',home:'🏠'};
+const bd=p=>p.badge||(p.created_at&&Date.now()-new Date(p.created_at)<5*864e5?'Naya':'');
 const em=c=>EM[String(c).toLowerCase()]||'🛍️';
 $('#tr').innerHTML='<span>'+(CFG.SHIP==0?'🚚 Free Delivery':'🚚 '+rs(CFG.FREE)+' se upar free delivery')+'</span><span>💵 Cash on Delivery</span><span>✅ Asaan Order</span>';
 $('#g').innerHTML='<p class="empty">Loading...</p>';
@@ -25,5 +26,5 @@ document.querySelectorAll('#chips button').forEach(b=>b.classList.toggle('on',(b
 let l=all.filter(p=>(cat=='❤'?w.includes(p.id):(!cat||p.category==cat))&&(p.title+' '+(p.category||'')+' '+(p.descr||'')).toLowerCase().includes(q)&&(!pb[1]||(p.price>=pb[0]&&p.price<=pb[1])));
 if(so=='l')l=[...l].sort((a,b)=>a.price-b.price);if(so=='h')l=[...l].sort((a,b)=>b.price-a.price);
 $('#ct').innerHTML=(cat=='❤'?'❤️ Pasandeeda':cat?em(cat)+' '+esc(cat):'🔥 Sab Products')+' <small>('+l.length+')</small>';
-$('#g').innerHTML=l.map(p=>{const on=w.includes(p.id);return '<a class="card'+(p.soldout?' sd':'')+'" href="product.html?id='+p.id+'"><div class="im"><img src="'+esc(p.images[0])+'" loading="lazy" alt="">'+(p.soldout?'<span class="tag x">Sold Out</span>':CFG.SHIP==0?'<span class="tag">Free Delivery</span>':'')+'<button class="hrt'+(on?' on':'')+'" data-id="'+p.id+'">'+(on?'❤️':'🤍')+'</button></div><div class="in"><div class="t">'+esc(p.title)+'</div><b>'+rs(p.price)+'</b></div></a>'}).join('')||'<p class="empty">Koi product nahi mila</p>'}
+$('#g').innerHTML=l.map(p=>{const on=w.includes(p.id);return '<a class="card'+(p.soldout?' sd':'')+'" href="product.html?id='+p.id+'"><div class="im"><img src="'+esc(p.images[0])+'" loading="lazy" alt="">'+(bd(p)?'<span class="bdg">'+esc(bd(p))+'</span>':'')+(p.soldout?'<span class="tag x">Sold Out</span>':CFG.SHIP==0?'<span class="tag">Free Delivery</span>':'')+'<button class="hrt'+(on?' on':'')+'" data-id="'+p.id+'">'+(on?'❤️':'🤍')+'</button></div><div class="in"><div class="t">'+esc(p.title)+'</div><b>'+rs(p.price)+'</b></div></a>'}).join('')||'<p class="empty">Koi product nahi mila</p>'}
 </script></body></html>
