@@ -16,3 +16,7 @@ function head(){
  document.body.insertAdjacentHTML('beforeend','<footer class="ft"><b>'+esc(CFG.STORE)+'</b><p><a href="info.html?p=about">Hamare baare mein</a> · <a href="info.html?p=delivery">Delivery</a> · <a href="info.html?p=return">Return Policy</a> · <a href="info.html?p=contact">Rabta</a> · <a href="track.html">📍 Order Track</a></p><p>Cash on Delivery · Pakistan bhar mein delivery</p></footer>'+(CFG.WA?'<a class="wafab" href="https://wa.me/'+esc(CFG.WA)+'" target="_blank" aria-label="WhatsApp">💬</a>':''));
  badge();
  Promise.resolve(sb.from('settings').select('*')).then(r=>{const S={};(r.data||[]).forEach(x=>S[x.k]=x.v);if(S.announce)document.body.insertAdjacentHTML('afterbegin','<div class="ann">'+esc(S.announce)+'</div>');if(window.onS)window.onS(S)}).catch(()=>{})}
+if(!document.querySelector('link[rel=manifest]'))document.head.insertAdjacentHTML('beforeend','<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-192.png">');
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+let dip;addEventListener('beforeinstallprompt',e=>{e.preventDefault();dip=e;const h=document.querySelector('header.top');if(h&&!$('#ib'))h.insertAdjacentHTML('afterend','<div class="instb" id="ib"><span>📲 Store ko phone mein app ki tarah rakhein</span><button onclick="dip.prompt();$(\'#ib\').remove()">Install</button><i onclick="$(\'#ib\').remove()">✕</i></div>')});
+addEventListener('appinstalled',()=>{const b=$('#ib');if(b)b.remove()});
