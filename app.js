@@ -23,3 +23,18 @@ if(!document.querySelector('link[rel=manifest]'))document.head.insertAdjacentHTM
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 let dip;addEventListener('beforeinstallprompt',e=>{e.preventDefault();dip=e;if($('#ib'))return;const adm=/panel/.test(location.pathname),h=document.querySelector('header.top')||$('#app');if(h)h.insertAdjacentHTML(adm?'beforebegin':'afterend','<div class="instb" id="ib"><span>'+(adm?'📲 Admin panel ko app ki tarah rakhein':'📲 Store ko phone mein app ki tarah rakhein')+'</span><button onclick="dip.prompt();$(\'#ib\').remove()">Install</button><i onclick="$(\'#ib\').remove()">✕</i></div>')});
 addEventListener('appinstalled',()=>{const b=$('#ib');if(b)b.remove()});
+
+const SRC=window.SpeechRecognition||window.webkitSpeechRecognition;
+function voice(o){
+ if(!SRC){alert('Is browser mein awaaz se likhna nahi chalta.\nKeyboard ke 🎤 (Gboard) se bol kar likh sakte hain.');return null}
+ const st={got:false,err:false,retry:false,r:null,tried:[]};
+ const go=lg=>{st.tried.push(lg);st.got=st.err=st.retry=false;
+  const r=new SRC();st.r=r;r.lang=lg;r.interimResults=true;r.continuous=false;r.maxAlternatives=1;
+  r.onresult=e=>{let t='',fin=false;for(let i=e.resultIndex;i<e.results.length;i++){t+=e.results[i][0].transcript;if(e.results[i].isFinal)fin=true}st.got=true;if(fin)o.onFinal(t.trim());else if(o.onInterim)o.onInterim(t.trim())};
+  r.onerror=e=>{const c=e.error;if(c=='aborted')return;st.err=true;
+   if(c=='language-not-supported'&&!st.tried.includes('en-IN')){st.retry=true;alert('Is phone par Urdu awaaz nahi chali, ab English mein sun raha hoon.\nRoman Urdu alfaaz (ring, wallet, jootay) English lehje mein bolein.');setTimeout(()=>go('en-IN'),300);return}
+   const M={'not-allowed':'Mic ki ijazat nahi mili.\nChrome ke ⋮ menu mein Settings > Site settings > Microphone mein is website ko Allow karein.','service-not-allowed':'Is phone mein awaaz pehchanne ki service band hai.\nKeyboard ke 🎤 (Gboard) se bol kar likhein.','network':'Internet check karein (awaaz pehchanne ke liye internet zaroori hai).','audio-capture':'Mic nahi mila ya kisi aur app mein istemal ho raha hai.','no-speech':'Awaaz sunai nahi di. Mic ke qareeb bolein aur dobara koshish karein.'};
+   alert(M[c]||('Awaaz ka masla: '+c+'.\nKeyboard ke 🎤 (Gboard) se bol kar likhein.'))};
+  r.onend=()=>{if(st.retry)return;if(!st.got&&!st.err)alert('Kuch likha nahi gaya.\nEN dabakar English mein try karein, ya keyboard ke 🎤 se bolein.');if(o.onEnd)o.onEnd()};
+  try{r.start()}catch(x){alert('Mic shuru nahi hua: '+x.message);if(o.onEnd)o.onEnd()}};
+ go(o.lang||'ur-PK');return{stop:()=>{try{st.r.stop()}catch(e){}}}}

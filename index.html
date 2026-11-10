@@ -2,6 +2,7 @@
 <div id="cr"></div><div class="hero"><h2>Naya Collection 🔥</h2><p>Pasandeeda cheezein, ghar baithe mangwayein</p></div>
 <div class="trust" id="tr"></div>
 <div class="sb"><input id="q" placeholder="🔍 Search ya bol kar dhoondein..."><button type="button" id="ml" aria-label="Zabaan">اردو</button><button type="button" id="mic" aria-label="Awaaz se search">🎤</button></div>
+<div class="sg">Try karein: <a data-s="ring">💍 ring</a><a data-s="wallet">👛 wallet</a><a data-s="jootay">👟 jootay</a><a data-s="ghari">⌚ ghari</a><a data-s="sasta">💸 sasta</a></div>
 <div class="chips" id="chips"></div>
 <div class="sortbar"><select id="so"><option value="n">Naya pehle</option><option value="l">Sasta pehle</option><option value="h">Mehnga pehle</option></select><select id="pb"><option value="">Har price</option><option value="0-1000">Rs 1,000 tak</option><option value="1000-2000">1,000 - 2,000</option><option value="2000-3000">2,000 - 3,000</option><option value="3000-999999">3,000 se upar</option></select></div>
 <div id="fr"></div><div id="rc"></div>
@@ -44,13 +45,13 @@ const rx=t=>new RegExp('\\b'+t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i');
 const hs=p=>p.title+' '+(p.category||'')+' '+(p.descr||'')+' '+(p.badge||'');
 function mq(p,g){const h=hs(p);return g.every(a=>a.some(t=>rx(t).test(h)))}
 function qf(L,g){if(!g.length)return L;const f=L.filter(p=>mq(p,g));if(f.length)return f;const sc=p=>g.filter(a=>a.some(t=>rx(t).test(hs(p)))).length;return L.filter(p=>sc(p)>0).sort((a,b)=>sc(b)-sc(a))}
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let LG='ur-PK',rec=null;
-if(!SR){$('#mic').style.display='none';$('#ml').style.display='none'}
+let LG='ur-PK',vc=null;
+if(!SRC){$('#mic').style.display='none';$('#ml').style.display='none'}
 $('#ml').onclick=()=>{LG=LG=='ur-PK'?'en-IN':'ur-PK';$('#ml').textContent=LG=='ur-PK'?'اردو':'EN'};
-$('#mic').onclick=()=>{if(rec){rec.stop();return}rec=new SR();rec.lang=LG;rec.interimResults=false;rec.maxAlternatives=1;$('#mic').classList.add('on');$('#q').placeholder='🎙️ Boliye...';
-rec.onresult=e=>{$('#q').value=e.results[0][0].transcript;show()};
-rec.onerror=e=>{const m={'not-allowed':'Mic ki ijazat dein (Chrome ki settings mein)','service-not-allowed':'Mic ki ijazat dein (Chrome ki settings mein)','no-speech':'Awaaz nahi aayi, dobara bolein','network':'Internet check karein','audio-capture':'Mic nahi mila'}[e.error];if(m)alert(m)};
-rec.onend=()=>{rec=null;$('#mic').classList.remove('on');$('#q').placeholder='🔍 Search ya bol kar dhoondein...'};rec.start()};
+const MP='🔍 Search ya bol kar dhoondein...',mend=()=>{vc=null;$('#mic').classList.remove('on');$('#q').placeholder=MP};
+$('#mic').onclick=()=>{if(vc){vc.stop();return}$('#mic').classList.add('on');$('#q').placeholder='🎙️ Boliye...';
+vc=voice({lang:LG,onInterim:t=>{$('#q').value=t;show()},onFinal:t=>{$('#q').value=t;show()},onEnd:mend});if(!vc)mend()};
+$('.sg').onclick=e=>{const a=e.target.closest('[data-s]');if(a){$('#q').value=a.dataset.s;show()}};
 {const n=cart().reduce((a,i)=>a+i.q,0);if(n)$('#cr').innerHTML='<a class="crb" href="cart.html">🛒 Aap ke cart mein <b>'+n+'</b> item hain. Order mukammal karein →</a>'}
 const mini=p=>'<a class="mini" href="product.html?id='+p.id+'"><img src="'+esc(p.images[0])+'" loading="lazy" alt=""><div class="t">'+esc(p.title)+'</div><b>'+rs(p.price)+'</b></a>';
 function rows(){const on=!cat&&!$('#q').value;const f=all.filter(p=>p.badge&&!p.soldout).sort((a,b)=>(b.badge=='Best Seller')-(a.badge=='Best Seller')).slice(0,8);
