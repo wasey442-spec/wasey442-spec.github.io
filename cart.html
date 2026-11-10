@@ -22,6 +22,8 @@ if(r.error){$('#ob').disabled=false;return alert('Error: '+r.error.message)}
 t.push(Date.now());localStorage.ot=JSON.stringify(t);ev('Purchase',{value:total,currency:'PKR'});
 const nm=v('#n'),msg='Assalam o Alaikum! Maine '+CFG.STORE+' se order kiya hai:\n'+c.map(i=>i.title+(i.size?' | '+i.size:'')+(i.color?' | '+i.color:'')+' x'+i.q).join('\n')+'\nTotal COD: '+rs(total)+'\nNaam: '+nm+'\nPhone: '+ph+'\nAddress: '+v('#ad')+', '+v('#ci');
 if(CFG.NTFY)fetch('https://ntfy.sh/'+CFG.NTFY,{method:'POST',body:'🛒 Naya order! '+rs(total)+' ('+c.length+' item)'}).catch(()=>{});
+localStorage.cust=JSON.stringify({n:nm,ph,ci:v('#ci'),ad:v('#ad')});
 save([]);$('#l').innerHTML='';$('#f').innerHTML='<h2>✅ Order mil gaya!</h2><p>Shukriya '+esc(nm)+'! Hum jald aap ko call ya WhatsApp par confirm karenge. Total: <b>'+rs(total)+'</b> (Cash on Delivery)</p>'+(CFG.WA?'<a class="btn g" href="https://wa.me/'+esc(CFG.WA)+'?text='+encodeURIComponent(msg)+'">📲 WhatsApp par order confirm karein</a>':'')+'<p><a href="track.html">📍 Order track karein</a> · <a href="index.html">← Mazeed shopping</a></p>'}
+try{const s=JSON.parse(localStorage.cust||'{}');if(s.n){$('#n').value=s.n;$('#ph').value=s.ph||'';$('#ci').value=s.ci||'';$('#ad').value=s.ad||''}}catch(e){}
 draw();
 </script></body></html>

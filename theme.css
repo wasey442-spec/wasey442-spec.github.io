@@ -78,3 +78,10 @@ body:has(.bar) .up{bottom:84px}
 .soc a{margin:0 8px;color:var(--ink);text-decoration:none}
 .qs{display:inline-flex;align-items:center;gap:12px;margin-top:6px}.qs button{width:30px;height:30px;border-radius:50%;border:1px solid #ddd;background:#fff;font-size:18px;line-height:1}
 .ft{padding-bottom:84px}
+.sb{position:relative}.sb #q{padding-right:104px;margin:5px 0}
+.sb button{position:absolute;top:50%;transform:translateY(-50%);border:0;color:#fff;cursor:pointer}
+#mic{right:6px;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--b),var(--b2));font-size:18px}
+#mic.on{background:#dc2626;animation:pl 1s infinite}@keyframes pl{50%{box-shadow:0 0 0 10px rgba(220,38,38,.25)}}
+#ml{right:52px;height:30px;padding:0 10px;border-radius:15px;background:#475569;font-size:13px}
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#1f2430;color:#fff;padding:12px 18px;border-radius:14px;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.3);animation:up .3s both;max-width:90%;text-align:center}
+.crb{display:block;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;text-decoration:none;padding:11px 14px;border-radius:12px;margin:4px 0 8px;font-size:14px}
