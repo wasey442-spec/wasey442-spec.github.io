@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f85606"><link rel="stylesheet" href="style.css"><title>Cart</title></head><body><div class="wrap"><div id="l"></div><div class="box" id="f"><h3>Delivery Details (Cash on Delivery)</h3><input id="n" placeholder="Poora naam"><input id="ph" type="tel" placeholder="Phone number"><input id="ci" placeholder="Shehar"><textarea id="ad" placeholder="Poora address"></textarea><button class="btn" id="ob" onclick="order()">Order Confirm Karein</button></div></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/umd/supabase.js"></script><script src="config.js"></script><script src="app.js"></script>
+<script>
+head();let BN=0,BO=0;
+window.onS=S=>{BN=+S.bundle_n||0;BO=+S.bundle_off||0;draw()};
+function calc(){const c=cart(),q=c.reduce((a,i)=>a+i.q,0),sub=c.reduce((a,i)=>a+i.price*i.q,0),ship=sub>=CFG.FREE?0:CFG.SHIP,b=BN&&q>=BN?BO:0,disc=Math.min(sub,b);return{c,q,sub,ship,b,disc,total:sub+ship-disc}}
+function draw(){const m=calc(),c=m.c;if(!c.length){$('#f').style.display='none';return $('#l').innerHTML='<div class="box">Cart khali hai. <a href="index.html">Shopping karein</a></div>'}
+$('#l').innerHTML='<div class="box">'+c.map((i,x)=>'<div class="row"><img src="'+esc(i.img)+'"><div style="flex:1">'+esc(i.title)+'<br><small>'+esc(i.size)+' '+esc(i.color)+'</small><br>'+rs(i.price)+'<div class="qs"><button onclick="qt('+x+',-1)">−</button><b>'+i.q+'</b><button onclick="qt('+x+',1)">+</button></div></div><button onclick="del('+x+')">✕</button></div>').join('')+'<hr>Subtotal: '+rs(m.sub)+(m.b?'<br>🎁 Bundle discount: -'+rs(m.b):'')+'<br>Delivery: '+(m.ship?rs(m.ship):'FREE')+'<h3>Total: '+rs(m.total)+'</h3>'+(BN&&m.q<BN?'<small>🎁 '+BN+' items lein, Rs '+BO+' bachayein!</small>':'')+(m.ship?'<br><small>'+rs(CFG.FREE)+' se upar delivery free!</small>':'')+'</div>'}
+function del(x){const c=cart();c.splice(x,1);save(c);draw()}
+function qt(x,d){const c=cart();c[x].q=Math.max(1,c[x].q+d);save(c);draw()}
+async function order(){const m=calc(),c=m.c,v=id=>$(id).value.trim();
+const ph=v('#ph').replace(/[\s-]/g,'').replace(/^\+?92/,'0');
+if(v('#n').length<3)return alert('Poora naam likhein');
+if(!/^03\d{9}$/.test(ph))return alert('Phone number sahi likhein, jaise 03001234567');
+if(!v('#ci')||v('#ad').length<10)return alert('Shehar aur poora address likhein');
+const t=JSON.parse(localStorage.ot||'[]').filter(x=>Date.now()-x<36e5);
+if(t.length>=3)return alert('Is device se bar bar order ho chuke hain. 1 ghante baad try karein ya humein WhatsApp karein.');
+const total=m.total;$('#ob').disabled=true;
+const base={name:v('#n'),phone:ph,city:v('#ci'),address:v('#ad'),items:c,total};
+let r=await sb.from('orders').insert(m.disc?{...base,discount:m.disc}:base);
+if(r.error&&m.disc)r=await sb.from('orders').insert(base);
+if(r.error){$('#ob').disabled=false;return alert('Error: '+r.error.message)}
+t.push(Date.now());localStorage.ot=JSON.stringify(t);ev('Purchase',{value:total,currency:'PKR'});
+const nm=v('#n'),msg='Assalam o Alaikum! Maine '+CFG.STORE+' se order kiya hai:\n'+c.map(i=>i.title+(i.size?' | '+i.size:'')+(i.color?' | '+i.color:'')+' x'+i.q).join('\n')+'\nTotal COD: '+rs(total)+'\nNaam: '+nm+'\nPhone: '+ph+'\nAddress: '+v('#ad')+', '+v('#ci');
+if(CFG.NTFY)fetch('https://ntfy.sh/'+CFG.NTFY,{method:'POST',body:'🛒 Naya order! '+rs(total)+' ('+c.length+' item)'}).catch(()=>{});
+localStorage.cust=JSON.stringify({n:nm,ph,ci:v('#ci'),ad:v('#ad')});
+save([]);$('#l').innerHTML='';$('#f').innerHTML='<h2>✅ Order mil gaya!</h2><p>Shukriya '+esc(nm)+'! Hum jald aap ko call ya WhatsApp par confirm karenge. Total: <b>'+rs(total)+'</b> (Cash on Delivery)</p>'+(CFG.WA?'<a class="btn g" href="https://wa.me/'+esc(CFG.WA)+'?text='+encodeURIComponent(msg)+'">📲 WhatsApp par order confirm karein</a>':'')+'<p><a href="track.html">📍 Order track karein</a> · <a href="index.html">← Mazeed shopping</a></p>'}
+try{const s=JSON.parse(localStorage.cust||'{}');if(s.n){$('#n').value=s.n;$('#ph').value=s.ph||'';$('#ci').value=s.ci||'';$('#ad').value=s.ad||''}}catch(e){}
+draw();
+</script></body></html>
